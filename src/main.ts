@@ -7,11 +7,11 @@ import { App } from "./providers/application/application.provider";
 import ENV from "./env";
 
 async function bootstrap() {
-    const app = await AppFactory.create(container, App);
-    await app.listen(ENV.Application.PORT, ServerEnvironment.Development, {
-      appName: ENV.Application.APP_NAME,
-      appVersion: ENV.Application.APP_VERSION,
-    });
+  const app = await AppFactory.create(container, App);
+  await app.listen(ENV.Application.PORT, ENV.Application.ENVIRONMENT === "Development" ? ServerEnvironment.Development : ServerEnvironment.Production, {
+    appName: ENV.Application.APP_NAME,
+    appVersion: ENV.Application.APP_VERSION,
+  });
 }
 
 bootstrap();
