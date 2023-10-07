@@ -7,6 +7,11 @@ const ENV = {
         ENVIRONMENT: process.env.ENVIRONMENT as string,
         PORT: Number(process.env.PORT),
     },
+    Broker: {
+      BROKER_URL: process.env.BROKER_URL as string,
+      BROKER_USERNAME: process.env.BROKER_USERNAME as string,
+      BROKER_PASSWORD: process.env.BROKER_PASSWORD as string,
+    }
 };
 
 export default ENV;
