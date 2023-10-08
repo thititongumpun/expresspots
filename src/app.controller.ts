@@ -1,8 +1,16 @@
 import { BaseController } from "@expressots/core";
 import { Response } from "express";
 import { AppUseCase } from "./app.usecase";
-import { Get, controller, response } from "@expressots/adapter-express";
 import { KafkaUseCase } from "@useCases/kafka/kafka.usecase";
+import {
+  controller,
+  httpGet,
+  httpPost,
+  queryParam,
+  requestBody,
+  response,
+} from "inversify-express-utils";
+import { body } from "@expressots/adapter-express";
 
 @controller("/")
 export class AppController extends BaseController {
@@ -10,14 +18,18 @@ export class AppController extends BaseController {
     super();
   }
 
-  @Get("/")
+  @httpGet("/")
   execute(@response() res: Response) {
     return res.send(this.appUseCase.execute());
   }
 
-  @Get("test")
-  async getTest(@response() res: Response) {
-    await this.kafkaUseCase.execute();
-    return res.json(this.appUseCase.getTest());
+  @httpPost("kafka")
+  async produceKafka(@body() req: { tag: string }, @response() res: Response) {
+    const { tag } = req;
+    await this.kafkaUseCase.execute(tag);
+    return res.json({
+      'status': 200,
+      'message': 'success'
+    });
   }
 }

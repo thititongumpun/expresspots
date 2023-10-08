@@ -1,10 +1,11 @@
 import ENV from 'env';
+import { Articles } from '@useCases/kafka/message.dto';
 import { provide } from 'inversify-binding-decorators';
-import { CompressionTypes, Kafka, Partitioners, Producer } from 'kafkajs';
+import { CompressionTypes, Kafka, Message, Partitioners, Producer, TopicMessages } from 'kafkajs';
 
 export interface KafkajsProducer {
   connect(): Promise<void>;
-  produce(): Promise<void>;
+  produce(tag: string, messages: Articles[]): Promise<void>;
   disconnect(): Promise<void>;
 }
 
@@ -24,15 +25,23 @@ export class KafkaProvider implements KafkajsProducer {
     }
   }
 
-  async produce(): Promise<void> {
+  async produce(tag: string, messages: Articles[]): Promise<void> {
+    const kafkaMessages: Message[] = messages.map((message) => {
+      return {
+        key: tag,
+        value: JSON.stringify(message)
+      }
+    })
 
-    await this.producer.send({
+    const topicMessages: TopicMessages = {
       topic: 'devto',
-      messages: [
-        { value: 'Hello KafkaJS user!' },
-      ],
+      messages: kafkaMessages
+    }
+
+    await this.producer.sendBatch({
+      topicMessages: [topicMessages],
       acks: -1,
-      compression: CompressionTypes.GZIP,
+      compression: CompressionTypes.GZIP
     })
   }
 
